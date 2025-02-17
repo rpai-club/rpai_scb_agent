@@ -3,7 +3,7 @@
 # For pi pico Cross Point Exp Board Mini Blue
 # Three analog + 2 AWG channel scope
 # Mini breadboard Ver 1
-# (1-21-2025)
+# (2-16-2025)
 # Written using Python version 3.10, Windows OS 
 #
 try:
@@ -16,6 +16,11 @@ except:
     exit()
 #
 # adjust for your specific hardware by changing these values in the alice.init file
+ADC_Cal = 3.29
+AWGPeakToPeak = 4.095
+#
+AWGRes = 4095 # For 8 bits, 4095 for 12 bits, 1023 for 10 bits
+ConfigFileName = "alice-last-config.cfg"
 CHANNELS = 3 # Number of supported Analog input channels
 AWGChannels = 2 # Number of supported Analog output channels
 PWMChannels = 1 # Number of supported PWM output channels
@@ -29,12 +34,9 @@ Tdiv.set(10)
 MatrixStatus = IntVar()
 MatrixStatus.set(0)
 AWG_Amp_Mode.set(0)
-AWGPeakToPeak = 4.095
 DevID = "Pi Pico Cross Point Mini"
 SerComPort = 'Auto'
 TimeSpan = 0.01
-ADC_Cal = 3.29
-AWGRes = 4095 # For 8 bits, 4095 for 12 bits, 1023 for 10 bits
 InterpRate = 4
 EnableInterpFilter.set(1)
 MaxSampleRate = SAMPLErate = 333333*InterpRate
@@ -82,8 +84,12 @@ JP12 = "CE8"; JP11 = "CE9"; JP10 = "CE10"; JP9 = "CE11"
 #
 # Cross point matrix functions
 def ReadNetlist(nfp):
-    # Use weird LTspice file encodeing !? two bytes per character...
-    NetList = open(nfp, 'r', encoding='utf-16-le')
+    if ".cir" in nfp:
+        # Use weird LTspice .cir file encodeing !? two bytes per character...
+        NetList = open(nfp, 'r', encoding='utf-16-le')
+    else:
+        # Use normal LTspice .net file encodeing one bytes per character...
+        NetList = open(nfp, 'r', encoding='utf-8')
     lines = NetList.readlines()
     NetList.close()
     #print(lines)
@@ -493,8 +499,8 @@ def Get_Buffer():
     ## 1 chan 324, 108, 36
     ## 2 chan 640, 320, 160
     ## 3,4 chan 500, 250
-    ByTwo = 500
-    ByFour = 250
+    ByTwo = 640
+    ByFour = 320
     ByEight = 160
     if TRACESread == 2:
         ByTwo = 640

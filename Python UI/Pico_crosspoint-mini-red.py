@@ -3,7 +3,7 @@
 # For pi pico Cross Point Exp Board Mini Red
 # Three analog + 2 AWG channel scope
 # Mini breadboard Ver 1
-# (2-6-2025)
+# (2-16-2025)
 # Written using Python version 3.10, Windows OS 
 #
 try:
@@ -86,8 +86,12 @@ JP9 = "CE4"; JP10 = "CE5"; JP11 = "CE12"; JP12 = "CE31"
 #
 # Cross point matrix functions
 def ReadNetlist(nfp):
-    # Use weird LTspice file encodeing !? two bytes per character...
-    NetList = open(nfp, 'r', encoding='utf-16-le')
+    if ".cir" in nfp:
+        # Use weird LTspice .cir file encodeing !? two bytes per character...
+        NetList = open(nfp, 'r', encoding='utf-16-le')
+    else:
+        # Use normal LTspice .net file encodeing one bytes per character...
+        NetList = open(nfp, 'r', encoding='utf-8')
     lines = NetList.readlines()
     NetList.close()
     #print(lines)
@@ -496,8 +500,8 @@ def Get_Buffer():
     ## 1 chan 324, 108, 36
     ## 2 chan 640, 320, 160
     ## 3,4 chan 500, 250
-    ByTwo = 500
-    ByFour = 250
+    ByTwo = 640 # 500
+    ByFour = 320 # 250
     ByEight = 160
     if TRACESread == 2:
         ByTwo = 640
