@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: cp1252 -*-
 #
-# Alice-universal-alpha.py(w) (1-20-2025)
+# Alice-universal-alpha.py(w) (3-4-2025)
 # Written using Python version 3.10, Windows OS 
 # Requires a hardware interface level functions add-on file
 # Created by D Mercer ()
@@ -74,7 +74,7 @@ import webbrowser
 # check which operating system
 import platform
 #
-RevDate = "19 Aug 2024"
+RevDate = "4 March 2025"
 SWRev = "1.0 "
 #
 # small bit map of triangle logo for window icon
@@ -18412,11 +18412,12 @@ def MakeSettingsMenu():
     global cha_A1Entry, cha_A2Entry, chb_A1Entry, chb_A2Entry
     global chc_TC1Entry, chc_TC2Entry, chd_TC1Entry, chd_TC2Entry
     global chc_A1Entry, chc_A2Entry, chd_A1Entry, chd_A2Entry
-    global FrameRelief, BorderSize
+    global FrameRelief, BorderSize, EntryText, FrameBG, ButRelief
 
     if SettingsStatus.get() == 0:
         SettingsStatus.set(1)
         Settingswindow = Toplevel()
+        Settingswindow.configure(background=FrameBG, borderwidth=BorderSize)
         Settingswindow.title("Settings " + SWRev + RevDate)
         Settingswindow.resizable(FALSE,FALSE)
         Settingswindow.protocol("WM_DELETE_WINDOW", DestroySettings)
@@ -19370,6 +19371,7 @@ if GUITheme == "Sun Valley Dark":
         #print("Setting ttk theme as dark")
         FrameBG = "#282828"
         ButtonText = "#cccccc"
+        EntryText = "#cccccc"
         COLORwhite = "#000000" # 100% black
         COLORblack = "#d7d7d7" # Gray
     # 

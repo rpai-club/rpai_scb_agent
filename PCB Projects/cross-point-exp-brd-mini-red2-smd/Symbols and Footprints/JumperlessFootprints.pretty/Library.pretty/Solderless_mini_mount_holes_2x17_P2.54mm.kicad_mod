@@ -1,0 +1,143 @@
+(footprint "Solderless_mini_mount_holes_2x17_P2.54mm"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(descr "Through hole straight pin header, 2x30, 2.54mm pitch, double rows")
+	(tags "Through hole pin header THT 2x30 2.54mm double row")
+	(property "Reference" "REF**"
+		(at 6.35 -2.33 0)
+		(layer "F.SilkS")
+		(uuid "e6ea8453-5916-4e83-b83b-469090538b8d")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "Solderless_mini_mount_holes_2x17_P2.54mm"
+		(at 2.54 22.86 90)
+		(layer "F.Fab")
+		(uuid "355c63ef-30ea-45af-bcee-74452acf65a3")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "f7b6cd31-df80-4c2a-85af-d4d567a9886b")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "ee5c739a-22f6-42b1-9510-9d71d5cf06a5")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "ad6a96f9-747c-4940-afd1-c3aefcb153c3")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_line
+		(start -13.97 -2.54)
+		(end -13.97 43.18)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "199b450f-ef37-4f9a-adbb-3344e17679e7")
+	)
+	(fp_line
+		(start -13.97 43.18)
+		(end 21.59 43.18)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "64e9a95c-d154-4f12-a482-f3b2f9f7cb56")
+	)
+	(fp_line
+		(start 21.59 -2.54)
+		(end -13.97 -2.54)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "e2efd0d0-41fb-4ec7-a0ba-f0a98b5bfbf3")
+	)
+	(fp_line
+		(start 21.59 43.18)
+		(end 21.59 -2.54)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "3ee69a62-ae48-4c48-89f8-2a68469f6b5a")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 5.08 20.32 90)
+		(layer "F.Fab")
+		(uuid "f13265ed-cce4-43e7-9591-074dbe11081b")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "" np_thru_hole circle
+		(at 3.81 1.7399)
+		(size 2.286 2.286)
+		(drill 2.286)
+		(layers "F&B.Cu" "*.Mask")
+		(uuid "edc4ee44-451c-4cc1-a1e0-92d28a9e799e")
+	)
+	(pad "" np_thru_hole circle
+		(at 3.81 38.9001)
+		(size 2.286 2.286)
+		(drill 2.286)
+		(layers "F&B.Cu" "*.Mask")
+		(uuid "593957d4-4dc4-4ed6-a596-46962f7459ce")
+	)
+	(model "${KICAD6_3DMODEL_DIR}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_2x30_P2.54mm_Vertical.wrl"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)
