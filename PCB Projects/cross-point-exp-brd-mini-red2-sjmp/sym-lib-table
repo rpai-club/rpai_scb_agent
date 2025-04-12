@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "MF_Connectors")(type "KiCad")(uri "${KIPRJMOD}/Symbols and Footprints/MF_Connectors.kicad_sym")(options "")(descr ""))
+  (lib (name "solderlessSymbols")(type "KiCad")(uri "${KIPRJMOD}/Symbols and Footprints/solderlessSymbols.kicad_sym")(options "")(descr ""))
+)
