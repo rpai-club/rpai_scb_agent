@@ -3,7 +3,7 @@
 # For pi pico Cross Point Exp Board Mini Red
 # Three analog + 2 AWG channel scope
 # Mini breadboard Ver 1
-# (5-9-2025)
+# (5-18-2025)
 # Written using Python version 3.10, Windows OS 
 #
 try:
@@ -16,7 +16,7 @@ except:
     exit()
 #
 # adjust for your specific hardware by changing these values in the alice.init file
-ADC_Cal = 3.29
+ADC_Cal = 3.25
 AWGPeakToPeak = 4.095 # Iternal reference voltage for MCP4822
 #
 AWGRes = 4095 # For 8 bits, 4095 for 12 bits, 1023 for 10 bits
@@ -72,7 +72,7 @@ TL1 = "CA0"; TL2 = "CA1"; TL3 = "CA2"; TL4 = "CA3"; TL5 = "CA4"; TL6 = "CA5"; TL
 BL1 = "CA14"; BL2 = "CA15"; BL3 = "CA6"; BL4 = "CA7"; BL5 = "CA8"; BL6 = "CA9"; BL7 = "CA10"; BL8 = "CA11"
 TL9 = "CB0"; TL10 = "CB1"; TL11 = "CB2"; TL12 = "CB3"; TL13 = "CB4"; TL14 = "CB5"; TL15 = "CB12"; TL16 = "CB13"
 BL9 = "CB14"; BL10 = "CB15"; BL11 = "CB6"; BL12 = "CB7"; BL13 = "CB8"; BL14 = "CB9"; BL15 = "CB10"; BL16 = "CB11"
-TL17 = "CE0"; TR1 = "CE2"
+BL17 = "CE2"; TL17 = "CE0"; TR1 = "CE1"
 
 TR2 = "CC0"; TR3 = "CC1"; TR4 = "CC2"; TR5 = "CC3"; TR6 = "CC4"; TR7 = "CC5"; TR8 = "CC12"; TR9 = "CC13"
 BR1 = "CC14"; BR2 = "CC15"; BR3 = "CC6"; BR4 = "CC7"; BR5 = "CC8"; BR6 = "CC9"; BR7 = "CC10"; BR8 = "CC11"
@@ -80,8 +80,8 @@ TR10 = "CD0"; TR11 = "CD1"; TR12 = "CD2"; TR13 = "CD3"; TR14 = "CD4"; TR15 = "CD
 BR9 = "CD14"; BR10 = "CD15"; BR11 = "CD6"; BR12 = "CD7"; BR13 = "CD8"; BR14 = "CD9"; BR15 = "CD10"; BR16 = "CD11"
 
 AINH = "CE14"; BINH = "CE15"; CINH = "CE6"
-AWG1 = "CE7"; AWG2 = "CE3"
-JP5 = "CE8"; JP6 = "CE9"; JP7 = "CE10"; JP8 = "CE11"
+AWG1 = "CE7"; AWG2 = "CE8"
+JP5 = "CE3"; JP6 = "CE9"; JP7 = "CE10"; JP8 = "CE11"
 JP9 = "CE4"; JP10 = "CE5"; JP11 = "CE12"; JP12 = "CE31"
 #
 # Cross point matrix functions
@@ -152,6 +152,11 @@ def ConfigCrossPoint():
                 xpin = xpin.replace("XX","")
                 XPin = eval(xpin)
             #
+            if XPin == 0: # cross point connected to node 0?
+                xpin = CompPins[0]
+                xpin = xpin.replace("XX","")
+                XPin = eval(xpin)
+                # print(XPin,xpin)
             if "L" in xpin:
                 if xpin != "TL17":
                     if JmpNum > 7:
@@ -199,6 +204,8 @@ def ConfigCrossPoint():
             else:
                 ErrorString = "Error Unknown switch chip number for? " + str(xpin)
                 print(ErrorString)
+                # print(CompPins)
+                # print(XPin,xpin)
                 Errors = Errors + 1
     NumConn.config(text = "Number of connections = " + str(connects) + " Errors = " + str(Errors))
     if Errors > 0:

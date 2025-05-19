@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: cp1252 -*-
 #
-# Alice-universal-alpha.py(w) (3-4-2025)
+# Alice-universal-alpha.py(w) (5-9-2025)
 # Written using Python version 3.10, Windows OS 
 # Requires a hardware interface level functions add-on file
 # Created by D Mercer ()
@@ -74,7 +74,7 @@ import webbrowser
 # check which operating system
 import platform
 #
-RevDate = "4 March 2025"
+RevDate = "9 May 2025"
 SWRev = "1.0 "
 #
 # small bit map of triangle logo for window icon
@@ -8177,6 +8177,10 @@ def MakeTimeScreen():
                     V1String = ' {0:.1f} '.format(ChaF/1000000)
                     txt = txt + str(V1String) + " MHz "
                 #
+            if MeasPhase.get() == 1:
+                txt = txt + " CA-B Phase = " + ' {0:.1f} '.format(CHABphase) + " deg "
+            if MeasDelay.get() == 1:
+                txt = txt + " CB-A Delay = " + ' {0:.3f} '.format(CHBADelayR1) + " mS "
         if ShowC2_V.get() == 1 and CHANNELS >= 2:
             if MeasBHW.get() == 1:
                 txt = txt + " CB Hi Width = " + ' {0:.3f} '.format(CHBHW) + " mS "

@@ -3,7 +3,7 @@
 # For pi pico Cross Point Exp Board Mini Red
 # Three analog + 2 AWG channel scope
 # Mini breadboard Ver 1
-# (5-9-2025)
+# (5-18-2025)
 # Written using Python version 3.10, Windows OS 
 #
 try:
@@ -83,7 +83,180 @@ AINH = "CE14"; BINH = "CE15"; CINH = "CE6"
 AWG1 = "CE7"; AWG2 = "CE3"
 JP5 = "CE8"; JP6 = "CE9"; JP7 = "CE10"; JP8 = "CE11"
 JP9 = "CE4"; JP10 = "CE5"; JP11 = "CE12"; JP12 = "CE31"
-#
+
+'''
+Tests all the pins by conneting DAC and ADC to each pin with a jumper
+
+Utilizes ManualMartix() to set jumpers, AWGSendWave() to send signals, and Get_Data()
+to retrieve the signal
+
+Notes:
+JP1-8 can connet to TL1-16 and BL1-16
+JP9-16 can connect to TR2-17 and BR1-16
+TL17, TR1 can connect to any JP1-4 and JP13-16
+'''
+def pin_test():
+    global ser, CompString, JumperString, OnOffString, NumConn
+
+    regions = ["TL", "BL","TR", "BR"]
+    
+    upper_range = 0
+    for region in regions:
+        # Top region of breadboard has 17 while bottom has 16
+        if region[0] == "T":
+            upper_range = 17
+        else:
+            upper_range = 16
+            
+        if region[1] == "L":
+            JPADC = "JP1"
+            JPDAC = "JP2"
+            # Connect DAC1
+            JumperString.delete(0,"end")
+            JumperString.insert(0,"JP1")
+            CompString.delete(0,"end")
+            CompString.insert(0, "AWG1")
+            OnOffString.delete(0,"end")
+            OnOffString.insert(0,"1")
+            ManualMartix()
+            
+            # Connect ADC1
+            JumperString.delete(0,"end")
+            JumperString.insert(0,"JP2")
+            CompString.delete(0,"end")
+            CompString.insert(0, "AINH")
+            OnOffString.delete(0,"end")
+            OnOffString.insert(0,"1")
+            ManualMartix()
+        
+        # Change DAC and ADC to connect to the jumpers
+        else:
+            # Connect DAC1
+            JumperString.delete(0,"end")
+            JumperString.insert(0,"JP16")
+            CompString.delete(0,"end")
+            CompString.insert(0, "AWG1")
+            OnOffString.delete(0,"end")
+            OnOffString.insert(0,"1")
+            ManualMartix()
+            
+            # Connect ADC1
+            JumperString.delete(0,"end")
+            JumperString.insert(0,"JP15")
+            CompString.delete(0,"end")
+            CompString.insert(0, "AINH")
+            OnOffString.delete(0,"end")
+            OnOffString.insert(0,"1")
+            ManualMartix()
+        
+        for i in range(1,upper_range+1):
+            # Test the pins by shorting ADC1 and DAC1
+            JumperString.delete(0,"end")
+            JumperString.insert(0,JPADC)
+            CompString.delete(0,"end")
+            CompString.insert(0, region + str(i))
+            OnOffString.delete(0,"end")
+            OnOffString.insert(0,"1")
+            ManualMartix()
+            
+            JumperString.delete(0,"end")
+            JumperString.insert(0,JPDAC)
+            CompString.delete(0,"end")
+            CompString.insert(0, region + str(i))
+            OnOffString.delete(0,"end")
+            OnOffString.insert(0,"1")
+            ManualMartix()
+            
+            #AWGASendWave(AWG1)
+            Get_Data()
+            VDC = numpy.mean(VBuffA)
+            if VDC < 4.1 and VDC > 3.9:
+                print(VDC)
+                print("Pin " + region + str(i) + " Passed!" )
+            else:
+                print(VDC)
+                print("Pin " + region + str(i) + " Failed!" )
+                
+            
+            # Disconnect pins
+            JumperString.delete(0,"end")
+            JumperString.insert(0,JPADC)
+            CompString.delete(0,"end")
+            CompString.insert(0, region + str(i))
+            OnOffString.delete(0,"end")
+            OnOffString.insert(0,"0")
+            ManualMartix()
+            
+            JumperString.delete(0,"end")
+            JumperString.insert(0,JPDAC)
+            CompString.delete(0,"end")
+            CompString.insert(0, region + str(i))
+            OnOffString.delete(0,"end")
+            OnOffString.insert(0,"0")
+            ManualMartix()
+            
+            
+def pin_test_cleanedup():
+    """
+    Tests all pins in each region of a breadboard by connecting AWG1 and AINH
+    through jumpers and measuring the resulting voltage.
+    Logs pass/fail based on expected voltage threshold (3.9V - 4.1V).
+    """
+    global ser, CompString, JumperString, OnOffString, NumConn
+
+    VOLTAGE_MIN = 3.9
+    VOLTAGE_MAX = 4.1
+
+    regions = ["TL", "BL", "TR", "BR"]
+
+    def set_connection(jumper, comp, onoff):
+        JumperString.delete(0, "end")
+        JumperString.insert(0, jumper)
+        CompString.delete(0, "end")
+        CompString.insert(0, comp)
+        OnOffString.delete(0, "end")
+        OnOffString.insert(0, onoff)
+        ManualMartix()
+
+    for region in regions:
+        upper_range = 17 if region[0] == "T" else 16
+
+        if region[1] == "L":
+            adc_jumper = "JP2"
+            dac_jumper = "JP1"
+        else:
+            adc_jumper = "JP15"
+            dac_jumper = "JP16"
+
+        # Set up DAC
+        set_connection(dac_jumper, "AWG1", "1")
+
+        # Set up ADC
+        set_connection(adc_jumper, "AINH", "1")
+
+        for i in range(1, upper_range + 1):
+            pin = region + str(i)
+
+            # Connect test pin to DAC and ADC
+            set_connection(adc_jumper, pin, "1")
+            set_connection(dac_jumper, pin, "1")
+
+            # Send waveform and get data
+            # AWGASendWave("AWG1")  # Uncomment if needed
+            Get_Data()
+            VDC = numpy.mean(VBuffA)
+
+            if VOLTAGE_MIN < VDC < VOLTAGE_MAX:
+                print("{:.2f} V - Pin {} Passed!".format(VDC, pin))
+            else:
+                print("{:.2f} V - Pin {} Failed!".format(VDC, pin))
+
+            # Disconnect test pin
+            set_connection(adc_jumper, pin, "0")
+            set_connection(dac_jumper, pin, "0")
+
+
+
 # Cross point matrix functions
 def ReadNetlist(nfp):
     if ".cir" in nfp:
@@ -94,7 +267,7 @@ def ReadNetlist(nfp):
         NetList = open(nfp, 'r', encoding='utf-8')
     lines = NetList.readlines()
     NetList.close()
-    #print(lines)
+    #print(lines)``
     # create a list of strings for all subcircuit istance lines in netlist, ignore rest
     netlist_stripped = []
     for line in lines:
@@ -152,6 +325,11 @@ def ConfigCrossPoint():
                 xpin = xpin.replace("XX","")
                 XPin = eval(xpin)
             #
+            if XPin == 0: # cross point connected to node 0?
+                xpin = CompPins[0]
+                xpin = xpin.replace("XX","")
+                XPin = eval(xpin)
+                # print(XPin,xpin)
             if "L" in xpin:
                 if xpin != "TL17":
                     if JmpNum > 7:
