@@ -3,7 +3,7 @@
 # For pi pico Cross Point Exp Board Mini Red
 # Three analog + 2 AWG channel scope
 # Mini breadboard Ver 1
-# (5-18-2025)
+# (6-2-2025)
 # Written using Python version 3.10, Windows OS 
 #
 try:
@@ -83,6 +83,10 @@ AINH = "CE14"; BINH = "CE15"; CINH = "CE6"
 AWG1 = "CE7"; AWG2 = "CE8"
 JP5 = "CE3"; JP6 = "CE9"; JP7 = "CE10"; JP8 = "CE11"
 JP9 = "CE4"; JP10 = "CE5"; JP11 = "CE12"; JP12 = "CE31"
+
+JumperSpinBoxList = ("JP1", "JP2", "JP3", "JP4", "JP5", "JP6", "JP7", "JP8",
+                     "JP9", "JP10", "JP11", "JP12", "JP13", "JP14", "J1P5", "JP16")
+CompSpinBoxList = ("AWG1", "AWG2", "AINH", "BINH", "CINH")
 #
 # Cross point matrix functions
 def ReadNetlist(nfp):
@@ -101,7 +105,9 @@ def ReadNetlist(nfp):
         # Select only the lines that start with XX
         # print(line)
         # line = line.encode('ascii')
-        if line[0:2] == 'XX':
+        # if line[0:2] == 'XX':
+        # if "TL" in line[0:4] or "BL" in line[0:4] or "TR" in line[0:4] or "BR" in line[0:4]:
+        if "cross_point" in line:
             netlist_stripped.append(line.split())
     return netlist_stripped
 #
@@ -145,16 +151,16 @@ def ConfigCrossPoint():
             try:
                 XPin = eval(CompPins[2]) # is Second net a component BB pin
                 xpin = CompPins[2]
-                xpin = xpin.replace("XX","")
+                xpin = xpin.replace("X","")
             except:
                 # for case where synbol instance name is the BB pin 
                 xpin = CompPins[0]
-                xpin = xpin.replace("XX","")
+                xpin = xpin.replace("X","")
                 XPin = eval(xpin)
             #
             if XPin == 0: # cross point connected to node 0?
                 xpin = CompPins[0]
-                xpin = xpin.replace("XX","")
+                xpin = xpin.replace("X","")
                 XPin = eval(xpin)
                 # print(XPin,xpin)
             if "L" in xpin:
@@ -283,6 +289,7 @@ def MakeMatrixScreen():
     global matrixwindow, MatrixStatus, FileString, NumConn, RevDate, SWRev
     global CompString, JumperString, OnOffString, cpcl1, jpcl1
     global FrameBG, BorderSize, ErrConn
+    global JumperSpinBoxList, CompSpinBoxList
     
     if MatrixStatus.get() == 0:
         MatrixStatus.set(1)
@@ -323,21 +330,26 @@ def MakeMatrixScreen():
         oncl1 = Label(matrixwindow,text="On/Off")
         oncl1.grid(row=6, column=2, sticky=W)
         #
-        CompString = Entry(matrixwindow, width=7)
+        CompString = Spinbox(matrixwindow, width=6, cursor='double_arrow', values=CompSpinBoxList)
+        #Entry(matrixwindow, width=7)
         CompString.bind("<Return>", ManualReturn)
         CompString.grid(row=7, column=0, columnspan=1, sticky=W)
         CompString.delete(0,"end")
-        CompString.insert(0,"")
-        JumperString = Entry(matrixwindow, width=7)
+        CompString.insert(0,"AWG1")
+        JumperString = Spinbox(matrixwindow, width=6, cursor='double_arrow', values=JumperSpinBoxList)
+        #Entry(matrixwindow, width=7)
         JumperString.bind("<Return>", ManualReturn)
         JumperString.grid(row=7, column=1, columnspan=1, sticky=W)
         JumperString.delete(0,"end")
-        JumperString.insert(0,"")
+        JumperString.insert(0,"JP1")
         OnOffString = Entry(matrixwindow, width=2)
         OnOffString.bind("<Return>", ManualReturn)
         OnOffString.grid(row=7, column=2, columnspan=1, sticky=W)
+        OnOffString.bind('<MouseWheel>', onTextScroll)# with Windows OS
+        OnOffString.bind("<Button-4>", onTextScroll)# with Linux OS
+        OnOffString.bind("<Button-5>", onTextScroll)
         OnOffString.delete(0,"end")
-        OnOffString.insert(0,"")
+        OnOffString.insert(0,"0")
         Setbutton = Button(matrixwindow, text="Set", style="W8.TButton", command=ManualMartix)
         Setbutton.grid(row=7, column=3, sticky=W, pady=8)
 ##  
