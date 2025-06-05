@@ -3,7 +3,7 @@
 # For pi pico Cross Point Exp Board Mini Red
 # Three analog + 2 AWG channel scope
 # Mini breadboard Ver 1
-# (6-2-2025)
+# (6-3-2025)
 # Written using Python version 3.10, Windows OS 
 #
 try:
@@ -85,7 +85,7 @@ JP5 = "CE3"; JP6 = "CE9"; JP7 = "CE10"; JP8 = "CE11"
 JP9 = "CE4"; JP10 = "CE5"; JP11 = "CE12"; JP12 = "CE31"
 
 JumperSpinBoxList = ("JP1", "JP2", "JP3", "JP4", "JP5", "JP6", "JP7", "JP8",
-                     "JP9", "JP10", "JP11", "JP12", "JP13", "JP14", "J1P5", "JP16")
+                     "JP9", "JP10", "JP11", "JP12", "JP13", "JP14", "JP15", "JP16")
 CompSpinBoxList = ("AWG1", "AWG2", "AINH", "BINH", "CINH")
 #
 # Cross point matrix functions
