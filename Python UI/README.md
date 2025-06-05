@@ -5,7 +5,7 @@ Repository for the Python source code and hardware level specification files.
 #
 The main Universal ALICE GUI is written in Python (3.x) and depends only on the more or less generic standardly available Python plugin libraries (such as Tcl/Tk, numpy, pyplot etc.). The hardware specific interface level is also generally implemented in Python plus any plugin libraries (such as pyserial). The hardware specific interface for the SCB extends the Raspberry Pi Pico interface to include controls for reading LTspice .net or .cir formated netlists.
 
-![Screenshot mainscreen](/Crosspoint_UI_screen.png)
+![Screenshot interfacescreen](./Crosspoint_UI_screen.png)
 Crosspoint Interface ALICE Screen
 
 The Pi Pico board must be flashed with the corresponding firmware from the Arduino firmware folder.
