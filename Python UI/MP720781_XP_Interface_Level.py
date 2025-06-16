@@ -1,6 +1,6 @@
 #
 # Hardware specific interface functions
-# For Multicomp Pre MP720781 Scope Meter (6-3-2025)
+# For Multicomp Pre MP720781 Scope Meter (6-16-2025)
 # Written using Python version 3.10, Windows OS 
 #
 try:
@@ -73,7 +73,7 @@ BR9 = "CD14"; BR10 = "CD15"; BR11 = "CD6"; BR12 = "CD7"; BR13 = "CD8"; BR14 = "C
 AINH = "CE14"; BINH = "CE15"; CINH = "CE6"
 AWG1 = "CE7"; AWG2 = "CE8"
 JP5 = "CE3"; JP6 = "CE9"; JP7 = "CE10"; JP8 = "CE11"
-JP9 = "CE4"; JP10 = "CE5"; JP11 = "CE12"; JP12 = "CE31"
+JP9 = "CE4"; JP10 = "CE5"; JP11 = "CE12"; JP12 = "CE13"
 
 JumperSpinBoxList = ("JP1", "JP2", "JP3", "JP4", "JP5", "JP6", "JP7", "JP8",
                      "JP9", "JP10", "JP11", "JP12", "JP13", "JP14", "JP15", "JP16")

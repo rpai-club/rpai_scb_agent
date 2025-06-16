@@ -3,7 +3,7 @@
 # For pi pico Cross Point Exp Board Mini Red
 # Three analog + 2 AWG channel scope
 # Mini breadboard Ver 1
-# (6-3-2025)
+# (6-16-2025)
 # Written using Python version 3.10, Windows OS 
 #
 try:
@@ -82,7 +82,7 @@ BR9 = "CD14"; BR10 = "CD15"; BR11 = "CD6"; BR12 = "CD7"; BR13 = "CD8"; BR14 = "C
 AINH = "CE14"; BINH = "CE15"; CINH = "CE6"
 AWG1 = "CE7"; AWG2 = "CE3"
 JP5 = "CE8"; JP6 = "CE9"; JP7 = "CE10"; JP8 = "CE11"
-JP9 = "CE4"; JP10 = "CE5"; JP11 = "CE12"; JP12 = "CE31"
+JP9 = "CE4"; JP10 = "CE5"; JP11 = "CE12"; JP12 = "CE13"
 
 JumperSpinBoxList = ("JP1", "JP2", "JP3", "JP4", "JP5", "JP6", "JP7", "JP8",
                      "JP9", "JP10", "JP11", "JP12", "JP13", "JP14", "JP15", "JP16")
@@ -385,6 +385,8 @@ def ConfigCrossPoint():
     NumConn.config(text = "Number of connections = " + str(connects) + " Errors = " + str(Errors))
     if Errors > 0:
         ErrConn.config(text = ErrorString )
+    else:
+        ErrConn.config(text = "" )
     #print("Number of connections ", connects)
 ##
 def ResetMatrix():
@@ -422,7 +424,7 @@ def ManualMartix():
                     Errors = Errors + 1
                 if JmpNum > 7:
                     JmpNum = JmpNum - 8
-                # print(xpin, XPin, JmpNum)
+                # print(CompPin, JmpNum)
         elif "R" in CompPin:
             if CompPin != "TR1":
                 if JmpNum < 7 or JmpNum > 15:
@@ -886,7 +888,7 @@ def Get_Data_One():
     global ShowC1_V, ShowC2_V, ShowC3_V, ShowC4_V
     global LSBsizeA, LSBsizeB, LSBsizeC, LSBsizeD
     global LoopBack, LBsb, TRACESread, Wait, iterCount
-    global MaxSampleRate, SAMPLErate, EnableInterpFilter
+    global MaxSampleRate, SAMPLErate, EnableInterpFilter, InterpRate
     global ser, SHOWsamples, TRIGGERsample, TgInput, TimeSpan
     global TrigSource, TriggerEdge, TriggerInt, Is_Triggered
     global vct_btn, vdt_btn, HoldOff, MinSamples, Interp4Filter
@@ -940,61 +942,61 @@ def Get_Data_One():
         VBuffA=[]
         while index < len(VBuff1): # build array 
             pointer = 0
-            while pointer < 4:
+            while pointer < InterpRate:
                 samp = VBuff1[index]
                 VBuffA.append(float(samp) * LSBsizeA)
                 pointer = pointer + 1
             index = index + 1
         SHOWsamples = len(VBuffA)
         if EnableInterpFilter.get() == 1:
-            VBuffA = numpy.pad(VBuffA, (4, 0), "edge")
+            VBuffA = numpy.pad(VBuffA, (InterpRate, 0), "edge")
             VBuffA = numpy.convolve(VBuffA, Interp4Filter )
-            VBuffA = VBuffA[4:SHOWsamples+4]
+            VBuffA = VBuffA[InterpRate:SHOWsamples+InterpRate]
         #
     elif ShowC2_V.get() > 0:
         VBuffB=[]
         while index < len(VBuff1): # build array 
             pointer = 0
-            while pointer < 4:
+            while pointer < InterpRate:
                 samp = VBuff1[index]
                 VBuffB.append(float(samp) * LSBsizeB)
                 pointer = pointer + 1
             index = index + 1
         SHOWsamples = len(VBuffB)
         if EnableInterpFilter.get() == 1:
-            VBuffB = numpy.pad(VBuffB, (4, 0), "edge")
+            VBuffB = numpy.pad(VBuffB, (InterpRate, 0), "edge")
             VBuffB = numpy.convolve(VBuffB, Interp4Filter )
-            VBuffB = VBuffB[4:SHOWsamples+4]
+            VBuffB = VBuffB[InterpRate:SHOWsamples+InterpRate]
         #
     elif ShowC3_V.get() > 0:
         VBuffC=[]
         while index < len(VBuff1): # build array 
             pointer = 0
-            while pointer < 4:
+            while pointer < InterpRate:
                 samp = VBuff1[index]
                 VBuffC.append(float(samp) * LSBsizeC)
                 pointer = pointer + 1
             index = index + 1
         SHOWsamples = len(VBuffC)
         if EnableInterpFilter.get() == 1:
-            VBuffC = numpy.pad(VBuffC, (4, 0), "edge")
+            VBuffC = numpy.pad(VBuffC, (InterpRate, 0), "edge")
             VBuffC = numpy.convolve(VBuffC, Interp4Filter )
-            VBuffC = VBuffC[4:SHOWsamples+4]
+            VBuffC = VBuffC[InterpRate:SHOWsamples+4]
         #
     elif ShowC4_V.get() > 0:
         VBuffD=[]
         while index < len(VBuff1): # build array 
             pointer = 0
-            while pointer < 4:
+            while pointer < InterpRate:
                 samp = VBuff1[index]
                 VBuffD.append(float(samp) * LSBsizeD)
                 pointer = pointer + 1
             index = index + 1
         SHOWsamples = len(VBuffD)
         if EnableInterpFilter.get() == 1:
-            VBuffD = numpy.pad(VBuffD, (4, 0), "edge")
+            VBuffD = numpy.pad(VBuffD, (InterpRate, 0), "edge")
             VBuffD = numpy.convolve(VBuffD, Interp4Filter )
-            VBuffD = VBuffD[4:SHOWsamples+4]
+            VBuffD = VBuffD[InterpRate:SHOWsamples+InterpRate]
         #
     else:
         return
@@ -1004,7 +1006,7 @@ def Get_Data_Two():
     global ShowC1_V, ShowC2_V, ShowC3_V, ShowC4_V
     global LSBsizeA, LSBsizeB, LSBsizeC,  LSBsizeD
     global LoopBack, LBsb, Wait, iterCount
-    global MaxSampleRate, SAMPLErate, EnableInterpFilter
+    global MaxSampleRate, SAMPLErate, EnableInterpFilter, InterpRate
     global ser, SHOWsamples, TRIGGERsample, TgInput, TimeSpan
     global TrigSource, TriggerEdge, TriggerInt, Is_Triggered
     global vct_btn, vdt_btn, HoldOff, MinSamples, Interp4Filter
@@ -1082,7 +1084,7 @@ def Get_Data_Two():
         VBuffB=[]
         while index < len(VBuff1): # build array 
             pointer = 0
-            while pointer < 4:
+            while pointer < InterpRate:
                 samp = VBuff1[index]
                 VBuffA.append(float(samp) * LSBsizeA)
                 samp = VBuff2[index]
@@ -1091,19 +1093,19 @@ def Get_Data_Two():
             index = index + 1
         SHOWsamples = len(VBuffA)
         if EnableInterpFilter.get() == 1:
-            VBuffA = numpy.pad(VBuffA, (4, 0), "edge")
+            VBuffA = numpy.pad(VBuffA, (InterpRate, 0), "edge")
             VBuffA = numpy.convolve(VBuffA, Interp4Filter )
-            VBuffB = numpy.pad(VBuffB, (4, 0), "edge")
+            VBuffB = numpy.pad(VBuffB, (InterpRate, 0), "edge")
             VBuffB = numpy.convolve(VBuffB, Interp4Filter )
-            VBuffA = VBuffA[4:SHOWsamples+4]
-            VBuffB = VBuffB[4:SHOWsamples+4]
+            VBuffA = VBuffA[InterpRate:SHOWsamples+InterpRate]
+            VBuffB = VBuffB[InterpRate:SHOWsamples+InterpRate]
         #
     elif ShowC1_V.get() > 0 and ShowC3_V.get() > 0: # capture on A and C
         VBuffA=[]
         VBuffC=[]
         while index < len(VBuff1): # build array 
             pointer = 0
-            while pointer < 4:
+            while pointer < InterpRate:
                 samp = VBuff1[index]
                 VBuffA.append(float(samp) * LSBsizeA)
                 samp = VBuff2[index]
@@ -1112,19 +1114,19 @@ def Get_Data_Two():
             index = index + 1
         SHOWsamples = len(VBuffA)
         if EnableInterpFilter.get() == 1:
-            VBuffA = numpy.pad(VBuffA, (4, 0), "edge")
+            VBuffA = numpy.pad(VBuffA, (InterpRate, 0), "edge")
             VBuffA = numpy.convolve(VBuffA, Interp4Filter )
-            VBuffC = numpy.pad(VBuffC, (4, 0), "edge")
+            VBuffC = numpy.pad(VBuffC, (InterpRate, 0), "edge")
             VBuffC = numpy.convolve(VBuffC, Interp4Filter )
-            VBuffA = VBuffA[4:SHOWsamples+4]
-            VBuffC = VBuffC[4:SHOWsamples+4]
+            VBuffA = VBuffA[InterpRate:SHOWsamples+InterpRate]
+            VBuffC = VBuffC[InterpRate:SHOWsamples+InterpRate]
         #
     elif ShowC2_V.get() > 0 and ShowC3_V.get() > 0: # capture on B and C
         VBuffB=[]
         VBuffC=[]
         while index < len(VBuff1): # build array 
             pointer = 0
-            while pointer < 4:
+            while pointer < InterpRate:
                 samp = VBuff1[index]
                 VBuffB.append(float(samp) * LSBsizeB)
                 samp = VBuff2[index]
@@ -1133,19 +1135,19 @@ def Get_Data_Two():
             index = index + 1
         SHOWsamples = len(VBuffB)
         if EnableInterpFilter.get() == 1:
-            VBuffB = numpy.pad(VBuffB, (4, 0), "edge")
+            VBuffB = numpy.pad(VBuffB, (InterpRate, 0), "edge")
             VBuffB = numpy.convolve(VBuffB, Interp4Filter )
-            VBuffC = numpy.pad(VBuffC, (4, 0), "edge")
+            VBuffC = numpy.pad(VBuffC, (InterpRate, 0), "edge")
             VBuffC = numpy.convolve(VBuffC, Interp4Filter )
-            VBuffB = VBuffB[4:SHOWsamples+4]
-            VBuffC = VBuffC[4:SHOWsamples+4]
+            VBuffB = VBuffB[InterpRate:SHOWsamples+InterpRate]
+            VBuffC = VBuffC[InterpRate:SHOWsamples+InterpRate]
         #
     elif ShowC1_V.get() > 0 and ShowC4_V.get() > 0: # capture on A and D
         VBuffA=[]
         VBuffD=[]
         while index < len(VBuff1): # build array 
             pointer = 0
-            while pointer < 4:
+            while pointer < InterpRate:
                 samp = VBuff1[index]
                 VBuffA.append(float(samp) * LSBsizeA)
                 samp = VBuff2[index]
@@ -1154,19 +1156,19 @@ def Get_Data_Two():
             index = index + 1
         SHOWsamples = len(VBuffA)
         if EnableInterpFilter.get() == 1:
-            VBuffA = numpy.pad(VBuffA, (4, 0), "edge")
+            VBuffA = numpy.pad(VBuffA, (InterpRate, 0), "edge")
             VBuffA = numpy.convolve(VBuffA, Interp4Filter )
-            VBuffD = numpy.pad(VBuffD, (4, 0), "edge")
+            VBuffD = numpy.pad(VBuffD, (InterpRate, 0), "edge")
             VBuffD = numpy.convolve(VBuffD, Interp4Filter )
-            VBuffA = VBuffA[4:SHOWsamples+4]
-            VBuffD = VBuffD[4:SHOWsamples+4]
+            VBuffA = VBuffA[InterpRate:SHOWsamples+InterpRate]
+            VBuffD = VBuffD[InterpRate:SHOWsamples+InterpRate]
         #
     elif ShowC2_V.get() > 0 and ShowC4_V.get() > 0: # capture on B and D
         VBuffB=[]
         VBuffD=[]
         while index < len(VBuff1): # build array 
             pointer = 0
-            while pointer < 4:
+            while pointer < InterpRate:
                 samp = VBuff1[index]
                 VBuffB.append(float(samp) * LSBsizeB)
                 samp = VBuff2[index]
@@ -1175,19 +1177,19 @@ def Get_Data_Two():
             index = index + 1
         SHOWsamples = len(VBuffB)
         if EnableInterpFilter.get() == 1:
-            VBuffB = numpy.pad(VBuffB, (4, 0), "edge")
+            VBuffB = numpy.pad(VBuffB, (InterpRate, 0), "edge")
             VBuffB = numpy.convolve(VBuffB, Interp4Filter )
-            VBuffD = numpy.pad(VBuffD, (4, 0), "edge")
+            VBuffD = numpy.pad(VBuffD, (InterpRate, 0), "edge")
             VBuffD = numpy.convolve(VBuffD, Interp4Filter )
-            VBuffB = VBuffB[4:SHOWsamples+4]
-            VBuffD = VBuffD[4:SHOWsamples+4]
+            VBuffB = VBuffB[InterpRate:SHOWsamples+InterpRate]
+            VBuffD = VBuffD[InterpRate:SHOWsamples+InterpRate]
         #
     elif ShowC3_V.get() > 0 and ShowC4_V.get() > 0: # capture on C and D
         VBuffC=[]
         VBuffD=[]
         while index < len(VBuff1): # build array 
             pointer = 0
-            while pointer < 4:
+            while pointer < InterpRate:
                 samp = VBuff1[index]
                 VBuffC.append(float(samp) * LSBsizeC)
                 samp = VBuff2[index]
@@ -1196,12 +1198,12 @@ def Get_Data_Two():
             index = index + 1
         SHOWsamples = len(VBuffC)
         if EnableInterpFilter.get() == 1:
-            VBuffC = numpy.pad(VBuffC, (4, 0), "edge")
+            VBuffC = numpy.pad(VBuffC, (InterpRate, 0), "edge")
             VBuffC = numpy.convolve(VBuffC, Interp4Filter )
-            VBuffD = numpy.pad(VBuffD, (4, 0), "edge")
+            VBuffD = numpy.pad(VBuffD, (InterpRate, 0), "edge")
             VBuffD = numpy.convolve(VBuffD, Interp4Filter )
-            VBuffC = VBuffC[4:SHOWsamples+4]
-            VBuffD = VBuffD[4:SHOWsamples+4]
+            VBuffC = VBuffC[InterpRate:SHOWsamples+InterpRate]
+            VBuffD = VBuffD[InterpRate:SHOWsamples+InterpRate]
         #
     else:
         return
@@ -1211,7 +1213,7 @@ def Get_Data_Three():
     global ShowC1_V, ShowC2_V, ShowC3_V, ShowC4_V
     global LSBsizeA, LSBsizeB, LSBsizeC
     global LoopBack, LBsb, Wait, iterCount
-    global MaxSampleRate, SAMPLErate, EnableInterpFilter
+    global MaxSampleRate, SAMPLErate, EnableInterpFilter, InterpRate
     global ser, SHOWsamples, TRIGGERsample, TgInput, TimeSpan
     global TrigSource, TriggerEdge, TriggerInt, Is_Triggered
     global vct_btn, vdt_btn, HoldOff, MinSamples, Interp4Filter
@@ -1304,7 +1306,7 @@ def Get_Data_Three():
         index = 0
         while index < len(VBuff1): # build array 
             pointer = 0
-            while pointer < 4:
+            while pointer < InterpRate:
                 samp = VBuff1[index]
                 VBuffA.append(float(samp) * LSBsizeA)
                 samp = VBuff2[index]
@@ -1315,15 +1317,15 @@ def Get_Data_Three():
             index = index + 1
         SHOWsamples = len(VBuffA)
         if EnableInterpFilter.get() == 1:
-            VBuffA = numpy.pad(VBuffA, (4, 0), "edge")
+            VBuffA = numpy.pad(VBuffA, (InterpRate, 0), "edge")
             VBuffA = numpy.convolve(VBuffA, Interp4Filter )
-            VBuffB = numpy.pad(VBuffB, (4, 0), "edge")
+            VBuffB = numpy.pad(VBuffB, (InterpRate, 0), "edge")
             VBuffB = numpy.convolve(VBuffB, Interp4Filter )
-            VBuffC = numpy.pad(VBuffC, (4, 0), "edge")
+            VBuffC = numpy.pad(VBuffC, (InterpRate, 0), "edge")
             VBuffC = numpy.convolve(VBuffC, Interp4Filter )
-            VBuffA = VBuffA[4:SHOWsamples+4]
-            VBuffB = VBuffB[4:SHOWsamples+4]
-            VBuffC = VBuffC[4:SHOWsamples+4]
+            VBuffA = VBuffA[InterpRate:SHOWsamples+InterpRate]
+            VBuffB = VBuffB[InterpRate:SHOWsamples+InterpRate]
+            VBuffC = VBuffC[InterpRate:SHOWsamples+InterpRate]
     if ShowC1_V.get() > 0 and ShowC2_V.get() > 0 and ShowC4_V.get() > 0: # capture on A B and D
         VBuffA=[]
         VBuffB=[]
@@ -1334,7 +1336,7 @@ def Get_Data_Three():
         index = 0
         while index < len(VBuff1): # build array 
             pointer = 0
-            while pointer < 4:
+            while pointer < InterpRate:
                 samp = VBuff1[index]
                 VBuffA.append(float(samp) * LSBsizeA)
                 samp = VBuff2[index]
@@ -1345,15 +1347,15 @@ def Get_Data_Three():
             index = index + 1
         SHOWsamples = len(VBuffA)
         if EnableInterpFilter.get() == 1:
-            VBuffA = numpy.pad(VBuffA, (4, 0), "edge")
+            VBuffA = numpy.pad(VBuffA, (InterpRate, 0), "edge")
             VBuffA = numpy.convolve(VBuffA, Interp4Filter )
-            VBuffB = numpy.pad(VBuffB, (4, 0), "edge")
+            VBuffB = numpy.pad(VBuffB, (InterpRate, 0), "edge")
             VBuffB = numpy.convolve(VBuffB, Interp4Filter )
-            VBuffD = numpy.pad(VBuffD, (4, 0), "edge")
+            VBuffD = numpy.pad(VBuffD, (InterpRate, 0), "edge")
             VBuffD = numpy.convolve(VBuffD, Interp4Filter )
-            VBuffA = VBuffA[4:SHOWsamples+4]
-            VBuffB = VBuffB[4:SHOWsamples+4]
-            VBuffD = VBuffD[4:SHOWsamples+4]
+            VBuffA = VBuffA[InterpRate:SHOWsamples+InterpRate]
+            VBuffB = VBuffB[InterpRate:SHOWsamples+InterpRate]
+            VBuffD = VBuffD[InterpRate:SHOWsamples+InterpRate]
     if ShowC2_V.get() > 0 and ShowC3_V.get() > 0 and ShowC4_V.get() > 0: # capture on B C and D
         VBuffB=[]
         VBuffC=[]
@@ -1364,7 +1366,7 @@ def Get_Data_Three():
         index = 0
         while index < len(VBuff1): # build array 
             pointer = 0
-            while pointer < 4:
+            while pointer < InterpRate:
                 samp = VBuff1[index]
                 VBuffB.append(float(samp) * LSBsizeB)
                 samp = VBuff2[index]
@@ -1375,15 +1377,15 @@ def Get_Data_Three():
             index = index + 1
         SHOWsamples = len(VBuffB)
         if EnableInterpFilter.get() == 1:
-            VBuffB = numpy.pad(VBuffB, (4, 0), "edge")
+            VBuffB = numpy.pad(VBuffB, (InterpRate, 0), "edge")
             VBuffB = numpy.convolve(VBuffB, Interp4Filter )
-            VBuffC = numpy.pad(VBuffC, (4, 0), "edge")
+            VBuffC = numpy.pad(VBuffC, (InterpRate, 0), "edge")
             VBuffC = numpy.convolve(VBuffC, Interp4Filter )
-            VBuffD = numpy.pad(VBuffD, (4, 0), "edge")
+            VBuffD = numpy.pad(VBuffD, (InterpRate, 0), "edge")
             VBuffD = numpy.convolve(VBuffD, Interp4Filter )
-            VBuffB = VBuffB[4:SHOWsamples+4]
-            VBuffC = VBuffC[4:SHOWsamples+4]
-            VBuffD = VBuffD[4:SHOWsamples+4]
+            VBuffB = VBuffB[InterpRate:SHOWsamples+InterpRate]
+            VBuffC = VBuffC[InterpRate:SHOWsamples+InterpRate]
+            VBuffD = VBuffD[InterpRate:SHOWsamples+InterpRate]
     if ShowC1_V.get() > 0 and ShowC3_V.get() > 0 and ShowC4_V.get() > 0: # capture on A B and D
         VBuffA=[]
         VBuffC=[]
@@ -1394,7 +1396,7 @@ def Get_Data_Three():
         index = 0
         while index < len(VBuff1): # build array 
             pointer = 0
-            while pointer < 4:
+            while pointer < InterpRate:
                 samp = VBuff1[index]
                 VBuffA.append(float(samp) * LSBsizeA)
                 samp = VBuff2[index]
@@ -1405,15 +1407,15 @@ def Get_Data_Three():
             index = index + 1
         SHOWsamples = len(VBuffA)
         if EnableInterpFilter.get() == 1:
-            VBuffA = numpy.pad(VBuffA, (4, 0), "edge")
+            VBuffA = numpy.pad(VBuffA, (InterpRate, 0), "edge")
             VBuffA = numpy.convolve(VBuffA, Interp4Filter )
-            VBuffC = numpy.pad(VBuffC, (4, 0), "edge")
+            VBuffC = numpy.pad(VBuffC, (InterpRate, 0), "edge")
             VBuffC = numpy.convolve(VBuffC, Interp4Filter )
-            VBuffD = numpy.pad(VBuffD, (4, 0), "edge")
+            VBuffD = numpy.pad(VBuffD, (InterpRate, 0), "edge")
             VBuffD = numpy.convolve(VBuffD, Interp4Filter )
-            VBuffA = VBuffA[4:SHOWsamples+4]
-            VBuffC = VBuffC[4:SHOWsamples+4]
-            VBuffD = VBuffD[4:SHOWsamples+4]
+            VBuffA = VBuffA[InterpRate:SHOWsamples+InterpRate]
+            VBuffC = VBuffC[InterpRate:SHOWsamples+InterpRate]
+            VBuffD = VBuffD[InterpRate:SHOWsamples+InterpRate]
 #
 # Hardware Help
 #

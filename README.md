@@ -22,7 +22,7 @@ This breadboard makes real, hardware connections between the 64 breadboard compo
 
 The combined 64X16 cross point matrix board uses a total of 5 CH446DS 16X8 analog cross point ICs (from China) programed via a RP-2040 micro controller breakout board (Pi Pico or equivalent). Materials cost per board, in quantities of 10 or more, is less than $30 not including the assembly labor.
 
-The board is powered from the Pi Pico USB connection. For powering the experiment circuits, male Pin Jumpers can be set for 0 and +3.3V, 0 and +5V or -5V and +5V power (or 0 and +10V) using an on board isolated 5V DC-DC generator.
+The board is powered from the Pi Pico USB connection. For powering the experiment circuits, Jumpers can be configured for 0 and +3.3V, 0 and +5V or -5V and +5V power (or 0 and +10V) using an on board isolated 5V DC-DC generator.
 
 LTspice is used to enter the schematic for the experiment. In addition to the standard library symbols a number of supporting schematic library files have been created. Schematic symbols for TO-92 transistors and resistors of various lead spacing are available in the LTspice files. 
 
