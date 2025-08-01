@@ -1,6 +1,6 @@
 #
 # Hardware specific interface functions
-# For ADALM2000 aka M2k and Red M2k XPoint breadboards (7-16-2025)
+# For ADALM2000 aka M2k and Red M2k XPoint breadboards (8-1-2025)
 # Written using Python version 3.10, Windows OS 
 #
 try:
@@ -59,6 +59,9 @@ PlusUSEnab = IntVar()
 PlusUSEnab.set(1)
 NegUSEnab = IntVar()
 NegUSEnab.set(1)
+## Time list in s/div
+TMpdiv = ("0.1us","0.2us","0.5us","1us","2us","5us", "10us", "20us", "50us", "100us", "200us", "500us", "1.0ms", "2.0ms", "5.0ms",
+          "10ms", "20ms", "50ms", "100ms", "200ms", "500ms", "1.0s", "2.0s", "5.0s")
 #
 OldCH1pdvRange = CH1pdvRange = 1.0
 OldCH2pdvRange = CH2pdvRange = 1.0
@@ -95,7 +98,10 @@ CompSpinBoxList = ("AWG1", "AWG2", "AINH", "BINH", "CINH")
 def ReadNetlist(nfp):
     if ".cir" in nfp:
         # Use weird LTspice .cir file encodeing !? two bytes per character...
-        NetList = open(nfp, 'r', encoding='utf-16-le')
+        try:
+            NetList = open(nfp, 'r', encoding='utf-8') # encoding='utf-16-le'
+        except:
+            NetList = open(nfp, 'r', encoding='utf-16-le')
     else:
         # Use normal LTspice .net file encodeing one bytes per character...
         NetList = open(nfp, 'r', encoding='utf-8')
@@ -154,15 +160,18 @@ def ConfigCrossPoint():
                 XPin = eval(CompPins[2]) # is Second net a component BB pin
                 xpin = CompPins[2]
                 xpin = xpin.replace("X","")
+                xpin = xpin.replace(chr(167),"")# remove §
             except:
                 # for case where synbol instance name is the BB pin 
                 xpin = CompPins[0]
                 xpin = xpin.replace("X","")
+                xpin = xpin.replace(chr(167),"")# remove §
                 XPin = eval(xpin)
             #
             if XPin == 0: # cross point connected to node 0?
                 xpin = CompPins[0]
                 xpin = xpin.replace("X","")
+                xpin = xpin.replace(chr(167),"")# remove §
                 XPin = eval(xpin)
                 # print(XPin,xpin)
             if "L" in xpin:
@@ -622,21 +631,23 @@ def ConnectDevice():
     if DevID == "No Device" or DevID == "M2k":
         #
         # Setup M2k instrument
-        ctx=libm2k.m2kOpen()
-
-        try:
-            ProductName = ctx.getContextAttributeValue('usb,product')
-        except:
-            print('No Device plugged IN!')
-            ProductName = "No Device"
-            bcon.configure(text="Recon", style="RConn.TButton")
-            return
-        if ProductName != 'M2k (ADALM-2000)':
-            print('M2K board not found!')
-            print(ProductName, " Found")
-            DevID = "No Device"
-            bcon.configure(text="Recon", style="RConn.TButton")
-            return
+        ctx=libm2k.m2kOpen('ip:m2k.local')
+        # the uri can be something similar to: "ip:192.168.2.1" or "usb:1.6.5"
+##        ProductName = ctx.getContextAttributeValue('usb,product')
+##        # ProductName = ctx.getContextAttributeValue('product')
+##        try:
+##            ProductName = ctx.getContextAttributeValue('usb,product')
+##        except:
+##            print('No Device plugged IN!')
+##            ProductName = "No Device"
+##            bcon.configure(text="Recon", style="RConn.TButton")
+##            return
+##        if ProductName != 'M2k (ADALM-2000)':
+##            print('M2K board not found!')
+##            print(ProductName, " Found")
+##            DevID = "No Device"
+##            bcon.configure(text="Recon", style="RConn.TButton")
+##            return
         bcon.configure(text="Conn",  style="GConn.TButton")
         DevID = ctx.getContextAttributeValue('hw_serial')
         print(DevID)

@@ -1,0 +1,25 @@
+The following parts can be sourced from alternate JLCPCB part numbers:
+
+Quad Opamp	U11	SOIC-14:
+1st choice	C7378	MCP6004T-I/SL Manufacturer Microchip Tech
+2nd choice	C43211	MCP6024T-I/SL Manufacturer Microchip Tech
+3rd choice	C146793 MC33204DR2G Manufacturer onsemi
+
+Potentiometer	RV1	Plugin-3P,9.5x9.5mm:
+1st choice	C116302	3386P-1-103TLF Manufacturer BOURNS
+2nd choice	C116281	3386P-1-103LF Manufacturer BOURNS
+3rd choice	C116296 3386P-1-502LF Manufacturer BOURNS
+4th choice	C116314 3386P-1-502TLF Manufacturer BOURNS
+
+Female Header	J1, J2, J7, J8	2.54-1X8P Plugin,P=2.54mm
+1st choice	C27438	BOOMELE(Boom Precision Elec)
+2nd choice	C124416	B-2200S08P-A120
+3rd choice	C350308	2685Y-108CNG1SNA01
+
+DC-DC converter	DC1	RFM-0505S SIP,11.5x6mm	
+1st choice	C22371855	RFM-0505S Manufacturer YLPTEC
+2nd choice	C324733	B0505S-1W Manufacturer GTL-POWER
+3rd choise	C234073	B0505S-1W Manufacturer HENIPER
+
+
+

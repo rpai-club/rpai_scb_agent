@@ -3,7 +3,7 @@
 # For pi pico Cross Point Exp Board Mini Red
 # Three analog + 2 AWG channel scope
 # Mini breadboard Ver 1
-# (6-16-2025)
+# (8-1-2025)
 # Written using Python version 3.10, Windows OS 
 #
 try:
@@ -259,13 +259,14 @@ def pin_test_cleanedup():
             set_connection(adc_jumper, pin, "0")
             set_connection(dac_jumper, pin, "0")
 
-
-
 # Cross point matrix functions
 def ReadNetlist(nfp):
     if ".cir" in nfp:
         # Use weird LTspice .cir file encodeing !? two bytes per character...
-        NetList = open(nfp, 'r', encoding='utf-16-le')
+        try:
+            NetList = open(nfp, 'r', encoding='utf-8') # encoding='utf-16-le'
+        except:
+            NetList = open(nfp, 'r', encoding='utf-16-le')
     else:
         # Use normal LTspice .net file encodeing one bytes per character...
         NetList = open(nfp, 'r', encoding='utf-8')
@@ -323,15 +324,18 @@ def ConfigCrossPoint():
                 XPin = eval(CompPins[2]) # is Second net a component BB pin
                 xpin = CompPins[2]
                 xpin = xpin.replace("X","")
+                xpin = xpin.replace(chr(167),"")# remove §
             except:
                 # for case where synbol instance name is the BB pin 
                 xpin = CompPins[0]
+                xpin = xpin.replace(chr(167),"")# remove § 
                 xpin = xpin.replace("X","")
                 XPin = eval(xpin)
             #
             if XPin == 0: # cross point connected to node 0?
                 xpin = CompPins[0]
                 xpin = xpin.replace("X","")
+                xpin = xpin.replace(chr(167),"")# remove §
                 XPin = eval(xpin)
                 # print(XPin,xpin)
             if "L" in xpin:

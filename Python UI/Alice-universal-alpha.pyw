@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: cp1252 -*-
 #
-# Alice-universal-alpha.py(w) (5-31-2025)
+# Alice-universal-alpha.py(w) (7-30-2025)
 # Written using Python version 3.10, Windows OS 
 # Requires a hardware interface level functions add-on file
 # Created by D Mercer ()
@@ -74,7 +74,7 @@ import webbrowser
 # check which operating system
 import platform
 #
-RevDate = "31 May 2025"
+RevDate = "30 July 2025"
 SWRev = "1.0 "
 #
 # small bit map of triangle logo for window icon
@@ -5520,7 +5520,7 @@ def Analog_Roll_time():
 def Analog_Fast_time():
     global VBuffA, VBuffB, VBuffC, VBuffD, VFilterA, VFilterB, VmemoryA, VmemoryB
     global VmemoryC, VmemoryD, VUnAvgA, VUnAvgB, UnAvgSav, NoiseCH1, NoiseCH2
-    global D0_is_on, D1_is_on, D2_is_on, D3_is_on, SaveDig
+    global VBuffG, D0_is_on, D1_is_on, D2_is_on, D3_is_on, SaveDig
     global D4_is_on, D5_is_on, D6_is_on, D7_is_on, COLORtrace8
     global DBuff0, DBuff1, DBuff2, DBuff3, DBuff4, DBuff5, DBuff6, DBuff7
     global AWGSync, TMsb, HoldOff, HozPoss, HozPossentry
