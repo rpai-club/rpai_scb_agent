@@ -99,9 +99,9 @@ def ReadNetlist(nfp):
     if ".cir" in nfp:
         # Use weird LTspice .cir file encodeing !? two bytes per character...
         try:
-            NetList = open(nfp, 'r', encoding='utf-8') # encoding='utf-16-le'
-        except:
             NetList = open(nfp, 'r', encoding='utf-16-le')
+        except:
+            NetList = open(nfp, 'r', encoding='utf-8')
     else:
         # Use normal LTspice .net file encodeing one bytes per character...
         NetList = open(nfp, 'r', encoding='utf-8')

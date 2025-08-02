@@ -3,7 +3,7 @@
 # For pi pico Cross Point Exp Board Mini Red
 # Three analog + 2 AWG channel scope
 # Mini breadboard Ver 1
-# (6-16-2025)
+# (8-1-2025)
 # Written using Python version 3.10, Windows OS 
 #
 try:
@@ -82,30 +82,35 @@ BR9 = "CD14"; BR10 = "CD15"; BR11 = "CD6"; BR12 = "CD7"; BR13 = "CD8"; BR14 = "C
 AINH = "CE14"; BINH = "CE15"; CINH = "CE6"
 AWG1 = "CE7"; AWG2 = "CE3"
 JP5 = "CE8"; JP6 = "CE9"; JP7 = "CE10"; JP8 = "CE11"
-JP9 = "CE4"; JP10 = "CE5"; JP11 = "CE12"; JP12 = "CE13"
+JP9 = "CE4"; JP10 = "CE5"; JP11 = "CE12"; JP12 = "CE31"
 #
 # Cross point matrix functions
+#
 def ReadNetlist(nfp):
     if ".cir" in nfp:
         # Use weird LTspice .cir file encodeing !? two bytes per character...
-        NetList = open(nfp, 'r', encoding='utf-16-le')
+        try:
+            NetList = open(nfp, 'r', encoding='utf-16-le')
+        except:
+            NetList = open(nfp, 'r', encoding='utf-8')      
     else:
         # Use normal LTspice .net file encodeing one bytes per character...
         NetList = open(nfp, 'r', encoding='utf-8')
     lines = NetList.readlines()
     NetList.close()
-    #print(lines)
+    # print(lines)
     # create a list of strings for all subcircuit istance lines in netlist, ignore rest
     netlist_stripped = []
     for line in lines:
-        # Select only the lines that start with XX
+        # Select only the lines that contain "cross_point"
         # print(line)
         # line = line.encode('ascii')
-        if line[0:2] == 'XX':
+        # if "TL" in line[0:4] or "BL" in line[0:4] or "TR" in line[0:4] or "BR" in line[0:4]:
+        if "cross_point" in line:
             netlist_stripped.append(line.split())
     return netlist_stripped
-#
-def WhichChip(CompPin): # determine which cross point chip is used A-H
+##
+def WhichChip(CompPin): # determine which cross point chip is used A-E
 
     ChipNum = 0
     # print("Which Chip ", CompPin)
@@ -145,13 +150,21 @@ def ConfigCrossPoint():
             try:
                 XPin = eval(CompPins[2]) # is Second net a component BB pin
                 xpin = CompPins[2]
-                xpin = xpin.replace("XX","")
+                xpin = xpin.replace("X","")
+                xpin = xpin.replace(chr(167),"")# remove §
             except:
                 # for case where synbol instance name is the BB pin 
                 xpin = CompPins[0]
-                xpin = xpin.replace("XX","")
+                xpin = xpin.replace("X","")
+                xpin = xpin.replace(chr(167),"")# remove §
                 XPin = eval(xpin)
             #
+            if XPin == 0: # cross point connected to node 0?
+                xpin = CompPins[0]
+                xpin = xpin.replace("X","")
+                xpin = xpin.replace(chr(167),"")# remove §
+                XPin = eval(xpin)
+                # print(XPin,xpin)
             if "L" in xpin:
                 if xpin != "TL17":
                     if JmpNum > 7:
@@ -203,6 +216,8 @@ def ConfigCrossPoint():
     NumConn.config(text = "Number of connections = " + str(connects) + " Errors = " + str(Errors))
     if Errors > 0:
         ErrConn.config(text = ErrorString )
+    else:
+        ErrConn.config(text = "" )
     #print("Number of connections ", connects)
 ##
 def ResetMatrix():
@@ -242,7 +257,7 @@ def ManualMartix():
                     JmpNum = JmpNum - 8
                 # print(xpin, XPin, JmpNum)
         elif "R" in CompPin:
-            if CompPin != "TR1":
+            if xpin != "TR1":
                 if JmpNum < 7 or JmpNum > 15:
                     print("Jumper out of range in " , CompPins)
                     Errors = Errors + 1

@@ -28,7 +28,10 @@ CSA = 7; CSB = 6; CSE = 5; CSC = 4; CSD = 3; RST = 2; DATA = 1; CLK = 0
 def ReadNetlist(nfp):
     if ".cir" in nfp:
         # Use weird LTspice .cir file encodeing !? two bytes per character...
-        NetList = open(nfp, 'r', encoding='utf-16-le')
+        try:
+            NetList = open(nfp, 'r', encoding='utf-16-le')
+        except:
+            NetList = open(nfp, 'r', encoding='utf-8')
     else:
         # Use normal LTspice .net file encodeing one bytes per character...
         NetList = open(nfp, 'r', encoding='utf-8')
@@ -87,15 +90,18 @@ def ConfigCrossPoint():
                 XPin = eval(CompPins[2]) # is Second net a component BB pin
                 xpin = CompPins[2]
                 xpin = xpin.replace("X","")
+                xpin = xpin.replace(chr(167),"")# remove §
             except:
                 # for case where synbol instance name is the BB pin 
                 xpin = CompPins[0]
                 xpin = xpin.replace("X","")
+                xpin = xpin.replace(chr(167),"")# remove §
                 XPin = eval(xpin)
             #
             if XPin == 0: # cross point connected to node 0?
                 xpin = CompPins[0]
                 xpin = xpin.replace("X","")
+                xpin = xpin.replace(chr(167),"")# remove §
                 XPin = eval(xpin)
                 # print(XPin,xpin)
             if "L" in xpin:

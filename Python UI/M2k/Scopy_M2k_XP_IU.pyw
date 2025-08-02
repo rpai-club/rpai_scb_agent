@@ -334,9 +334,11 @@ def ReadNetlist(nfp):
     if ".cir" in nfp:
         # Use weird LTspice .cir file encodeing !? two bytes per character...
         try:
-            NetList = open(nfp, 'r', encoding='utf-8') # encoding='utf-16-le'
-        except:
             NetList = open(nfp, 'r', encoding='utf-16-le')
+            #print("Found file as UTF-16-LE")
+        except:
+            NetList = open(nfp, 'r', encoding='utf-8') # encoding='utf-16-le'
+            #print("Found file as UTF-8")
     else:
         # Use normal LTspice .net file encodeing one bytes per character...
         NetList = open(nfp, 'r', encoding='utf-8')
@@ -387,6 +389,7 @@ def ConfigCrossPoint():
     time.sleep(0.01)
     while index < CompNum:
         CompPins = ComponentList[index]
+        # print("netlist line ", CompPins) 
         index = index + 1
         if "JP" in CompPins[1]:
             Jumper = CompPins[1] # First net is Jumper bus
@@ -399,8 +402,11 @@ def ConfigCrossPoint():
             except:
                 # for case where synbol instance name is the BB pin 
                 xpin = CompPins[0]
+                #print("CompPins[0]", CompPins[0])
                 xpin = xpin.replace("X","")
+                #print("Remove X", xpin)
                 xpin = xpin.replace(chr(167),"")# remove §
+                #print("Remove §", xpin)
                 XPin = eval(xpin)
             #
             if XPin == 0: # cross point connected to node 0?
