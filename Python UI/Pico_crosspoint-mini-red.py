@@ -3,7 +3,7 @@
 # For pi pico Cross Point Exp Board Mini Red
 # Three analog + 2 AWG channel scope
 # Mini breadboard Ver 1
-# (8-1-2025)
+# (8-2-2025)
 # Written using Python version 3.10, Windows OS 
 #
 try:
@@ -87,16 +87,16 @@ JP9 = "CE4"; JP10 = "CE5"; JP11 = "CE12"; JP12 = "CE31"
 # Cross point matrix functions
 #
 def ReadNetlist(nfp):
-    if ".cir" in nfp:
-        # Use weird LTspice .cir file encodeing !? two bytes per character...
-        try:
-            NetList = open(nfp, 'r', encoding='utf-16-le')
-        except:
-            NetList = open(nfp, 'r', encoding='utf-8')      
-    else:
-        # Use normal LTspice .net file encodeing one bytes per character...
+#
+    try: # First check if net list is UTF-16-LE
+        NetList = open(nfp, 'r', encoding='utf-16-le')     
+        lines = NetList.readlines()
+        print("Found file as UTF-16-LE")
+    except: # If fails then must beUTF-8
+        NetList.close()
         NetList = open(nfp, 'r', encoding='utf-8')
-    lines = NetList.readlines()
+        lines = NetList.readlines()
+        print("Found file as UTF-8")
     NetList.close()
     # print(lines)
     # create a list of strings for all subcircuit istance lines in netlist, ignore rest

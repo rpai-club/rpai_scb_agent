@@ -1,6 +1,6 @@
 #
 # Hardware specific interface functions
-# For Multicomp Pre MP720781 Scope Meter (6-16-2025)
+# For Multicomp Pre MP720781 Scope Meter (8-2-2025)
 # Written using Python version 3.10, Windows OS 
 #
 try:
@@ -82,13 +82,16 @@ CompSpinBoxList = ("AWG1", "AWG2", "AINH", "BINH", "CINH")
 # Cross point matrix functions
 #
 def ReadNetlist(nfp):
-    if ".cir" in nfp:
-        # Use weird LTspice .cir file encodeing !? two bytes per character...
-        NetList = open(nfp, 'r', encoding='utf-16-le')
-    else:
-        # Use normal LTspice .net file encodeing one bytes per character...
+#
+    try: # First check if net list is UTF-16-LE
+        NetList = open(nfp, 'r', encoding='utf-16-le')     
+        lines = NetList.readlines()
+        print("Found file as UTF-16-LE")
+    except: # If fails then must beUTF-8
+        NetList.close()
         NetList = open(nfp, 'r', encoding='utf-8')
-    lines = NetList.readlines()
+        lines = NetList.readlines()
+        print("Found file as UTF-8")
     NetList.close()
     #print(lines)
     # create a list of strings for all subcircuit istance lines in netlist, ignore rest
