@@ -69,7 +69,7 @@ OldCH2pdvRange = CH2pdvRange = 1.0
 AWGAwaveform = numpy.ones(1024)
 AWGBwaveform = numpy.ones(1024)
 #
-# Breadboard pin maping for Mimi Red 2 SMD layout
+# Breadboard pin maping for M2k Red 2 layout
 #
 TL1 = "CA0"; TL2 = "CA1"; TL3 = "CA2"; TL4 = "CA3"; TL5 = "CA4"; TL6 = "CA5"; TL7 = "CA12"; TL8 = "CA13"
 BL1 = "CA14"; BL2 = "CA15"; BL3 = "CA6"; BL4 = "CA7"; BL5 = "CA8"; BL6 = "CA9"; BL7 = "CA10"; BL8 = "CA11"

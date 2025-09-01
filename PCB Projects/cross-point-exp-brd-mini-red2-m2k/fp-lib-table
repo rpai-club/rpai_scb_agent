@@ -1,0 +1,7 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "Library")(type "KiCad")(uri "${KIPRJMOD}/Symbols and Footprints/JumperlessFootprints.pretty/Library.pretty")(options "")(descr ""))
+  (lib (name "MCU_RaspberryPi_and_Boards")(type "KiCad")(uri "${KIPRJMOD}/Symbols and Footprints/MCU_RaspberryPi_and_Boards.pretty")(options "")(descr ""))
+  (lib (name "JumperlessFootprints")(type "KiCad")(uri "${KIPRJMOD}/Symbols and Footprints/JumperlessFootprints.pretty")(options "")(descr ""))
+  (lib (name "MF_Connectors")(type "KiCad")(uri "${KIPRJMOD}/Symbols and Footprints/MF_Connectors.pretty")(options "")(descr ""))
+)
