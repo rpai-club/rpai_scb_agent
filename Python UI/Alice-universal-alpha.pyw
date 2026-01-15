@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: cp1252 -*-
 #
-# Alice-universal-alpha.py(w) (8-25-2025)
+# Alice-universal-alpha.py(w) (12-17-2025)
 # Written using Python version 3.10, Windows OS 
 # Requires a hardware interface level functions add-on file
 # Created by D Mercer ()
@@ -76,7 +76,7 @@ HelpURL = "https://github.com/damercer/Universal-ALICE"
 # check which operating system
 import platform
 #
-RevDate = "25 Aug 2025"
+RevDate = "17 Dec 2025"
 SWRev = "1.0 "
 #
 # small bit map of triangle logo for window icon
@@ -9100,7 +9100,10 @@ def SetScaleC():
     if MarkerScale.get() != 1:
         MarkerScale.set(3)
         CHClab.config(style="Rtrace3.TButton")
-        CHDlab.config(style="Strace4.TButton")
+        try:
+            CHDlab.config(style="Strace4.TButton")
+        except:
+            pass
     else:
         MarkerScale.set(0)
 
@@ -19155,16 +19158,25 @@ def RDbutton():
         display8.config(text="%f Gain" %RDGain)		
 #
 # Draw a resistor shape at location
-def DrawRes(X, Y, ResW, SchCa): 
+def DrawRes(X, Y, ResW, SchCa, direction=0): 
     global COLORblack
 
-    SchCa.create_line(X, Y, X, Y+20, fill=COLORblack, width=3)
-    SchCa.create_line(X, Y+20, X+ResW, Y+25, fill=COLORblack, width=3)
-    SchCa.create_line(X+ResW, Y+25, X-ResW, Y+35, fill=COLORblack, width=3)
-    SchCa.create_line(X-ResW, Y+35, X+ResW, Y+45, fill=COLORblack, width=3)
-    SchCa.create_line(X+ResW, Y+45, X-ResW, Y+55, fill=COLORblack, width=3)
-    SchCa.create_line(X-ResW, Y+55, X, Y+60, fill=COLORblack, width=3)
-    SchCa.create_line(X, Y+60, X, Y+80, fill=COLORblack, width=3)
+    if direction == 0: # Draw vertical resistor
+        SchCa.create_line(X, Y, X, Y+20, fill=COLORblack, width=3)
+        SchCa.create_line(X, Y+20, X+ResW, Y+25, fill=COLORblack, width=3)
+        SchCa.create_line(X+ResW, Y+25, X-ResW, Y+35, fill=COLORblack, width=3)
+        SchCa.create_line(X-ResW, Y+35, X+ResW, Y+45, fill=COLORblack, width=3)
+        SchCa.create_line(X+ResW, Y+45, X-ResW, Y+55, fill=COLORblack, width=3)
+        SchCa.create_line(X-ResW, Y+55, X, Y+60, fill=COLORblack, width=3)
+        SchCa.create_line(X, Y+60, X, Y+80, fill=COLORblack, width=3)
+    else: # Draw horizontal resistor
+        SchCa.create_line(X, Y, X+20, Y, fill=COLORblack, width=3)
+        SchCa.create_line(X+20, Y, X+25, Y+ResW, fill=COLORblack, width=3)
+        SchCa.create_line(X+25, Y+ResW, X+35, Y-ResW, fill=COLORblack, width=3)
+        SchCa.create_line(X+35, Y-ResW, X+45, Y+ResW, fill=COLORblack, width=3)
+        SchCa.create_line(X+45, Y+ResW, X+55, Y-ResW, fill=COLORblack, width=3)
+        SchCa.create_line(X+55, Y-ResW, X+60, Y, fill=COLORblack, width=3)
+        SchCa.create_line(X+60, Y, X+80, Y, fill=COLORblack, width=3)
 #
 def RDSetAGO():
     global CHAVGainEntry, CHAVOffsetEntry
