@@ -1644,6 +1644,8 @@ def MakeBreadboardScreen():
     global CompSpinBoxList_RC, CompSpinBoxList_TL, CompSpinBoxList_BL, CompSpinBoxList_TR, CompSpinBoxList_BR
     global click_loc, breadboard_image, JPcolors, breadboard_canvas
 
+   
+    
     if BreadboardStatus.get() == 0:
         try:
             XlabLogo_image = PhotoImage(file='./XLab-logo.png') #
@@ -1826,10 +1828,58 @@ def MakeBreadboardScreen():
         VerifyButton.grid(row=20, column=0, columnspan=2, sticky=W, pady=1)
         PassFailSvBB = Label(matrixwindow,text="")
         PassFailSvBB.grid(row=20, column=2, columnspan=4, sticky=W, pady=1)
-            
+        
+
         if HWRevOne == "Red3":
             TestResButton = Button(matrixwindow, text="Man Test Resistor", style="W17.TButton", command=MakeTestResWindow)
             TestResButton.grid(row=21, column=0, columnspan=2, sticky=W, pady=1)
+
+
+       # --- FULL CHAT UI INTEGRATION ---
+        # 1. Row configuration: Give row 22 (the chat history) all the "weight"
+        # This makes it expand vertically to fill the bottom of the UI.
+        matrixwindow.rowconfigure(22, weight=1)
+        matrixwindow.columnconfigure(0, weight=1)
+
+        # 2. Chat History Display (Scrollable)
+        global ChatHistory
+        ChatHistory = scrolledtext.ScrolledText(matrixwindow, 
+                                                height=10, 
+                                                state='disabled', 
+                                                wrap='word', 
+                                                bg="white",         # Background color
+                                                foreground="black",  # Main text color (BLACK)
+                                                font=("Arial", 10)
+                                               )
+        ChatHistory.grid(row=22, column=0, columnspan=4, sticky="nsew", padx=5, pady=(10, 0))
+
+        # Create "Bubbles" using Tags (Color coding)
+        ChatHistory.tag_configure("user_tag", foreground="#0078d4", font=("Arial", 10, "bold"))
+        ChatHistory.tag_configure("ai_tag", foreground="#2b88d8", font=("Arial", 10, "bold"))
+
+        # 3. Label for the Input
+        PromptLabel = Label(matrixwindow, text="User Prompt:", style="A12B.TLabel")
+        PromptLabel.grid(row=23, column=0, columnspan=2, sticky=W, pady=(5, 0))
+
+        # 4. Input Box (PromptBox)
+        # Using Style consistent with previous turns
+       # --- UPDATE STYLE FOR CURSOR ---
+        style = Style()
+        style.configure("Prompt.TEntry", 
+                        fieldbackground="white", 
+                        foreground="black",
+                        insertcolor="black",   # THIS MAKES THE CURSOR BLACK
+                        insertwidth=2)        # Makes it slightly thicker/easier to see
+        
+        global PromptBox
+        PromptBox = Entry(matrixwindow, style="Prompt.TEntry")
+        PromptBox.grid(row=24, column=0, columnspan=4, sticky="ew", padx=5, pady=(0, 10))
+        
+        PromptBox.bind("<Return>", handle_user_prompt)
+        # --- END CHAT UI ---
+
+        
+
         ############################## 
         ### MIDDLE SIDE OF SCREEN ####
         #### The top part of the middle section is the simulated image of the breadboard
@@ -1877,6 +1927,9 @@ def MakeBreadboardScreen():
             J_Connections_Labels.append(J_connections)
 
         ##############################
+
+        # Add this at the end of the function to set focus on startup
+        PromptBox.focus_set()
 #
 def BBCAresize(event):
     global breadboard_canvas, BBwidth, BBheight, CANVASwidthBB, CANVASheightBB
@@ -7708,4 +7761,31 @@ def onResSchClick(event):
     SendByt = SendStr.encode('utf-8')
     ser.write(SendByt)
 #
+
+# create an AI prompt box
+def handle_user_prompt(event):
+    global PromptBox, ChatHistory
+    user_input = PromptBox.get().strip()
     
+    if user_input:
+        # Enable editing to add text
+        ChatHistory.configure(state='normal')
+        
+        # Add User message
+        ChatHistory.insert('end', f"\nYou: ", "user_tag")
+        ChatHistory.insert('end', f"{user_input}\n")
+        
+        # Clear input box
+        PromptBox.delete(0, 'end')
+        
+        # ENSURE CURSOR RETURNS TO BOX
+        PromptBox.focus_set() 
+        
+        # Simulation of AI Response (You can hook this up to your logic)
+        ChatHistory.insert('end', f"\nAI: ", "ai_tag")
+        ChatHistory.insert('end', f"I've received your request: '{user_input}'. How can I help further?\n")
+        
+        # Scroll to the bottom and disable editing again
+        ChatHistory.see('end')
+        ChatHistory.configure(state='disabled')
+
