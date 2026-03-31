@@ -1848,22 +1848,70 @@ def MakeBreadboardScreen():
 
 
     # --- PROMPT BOX ---
-        PromptLabel = Label(matrixwindow, text="User Prompt:", style="A12B.TLabel")
-        PromptLabel.grid(row=22, column=0, columnspan=2, sticky=W, pady=(10, 0))
+       # --- CLASSIC TK SETUP ---
+        import tkinter as tk_base  # Ensure we have access to classic widgets
+
+        # 1. CREATE STYLE FOR CURSOR
+        # This fixes the cursor color for the ttk Entry
+        style = Style()
+        style.configure("Prompt.TEntry", 
+                        fieldbackground="white", 
+                        foreground="black", 
+                        insertcolor="black", # <--- FIXES VISIBLE CURSOR
+                        insertwidth=2)
+
+        # 2. CREATE DRAGGABLE PANED WINDOW
+        # This allows you to drag the divider up/down to resize the chat
+        chat_paner = tk_base.PanedWindow(matrixwindow, 
+                                        orient=tk_base.VERTICAL, 
+                                        sashwidth=6, 
+                                        sashrelief=tk_base.RAISED, 
+                                        bg=FrameBG)
+        chat_paner.grid(row=22, column=0, columnspan=4, sticky="nsew", padx=5, pady=10)
+        
+        # Give row 22 all the weight so it fills the bottom area
+        matrixwindow.rowconfigure(22, weight=1)
+
+        # 3. CHAT HISTORY (Top Pane)
+        global ChatHistory
+        ChatHistory = scrolledtext.ScrolledText(
+            chat_paner, # Parent is the paner
+            height=10, 
+            state='disabled', 
+            wrap='word', 
+            bg="white", 
+            foreground="black", 
+            insertbackground="black", 
+            font=("Arial", 10)
+        )
+        
+        # Add to paned window
+        chat_paner.add(ChatHistory, minsize=100)
+
+        # 4. PROMPT INPUT AREA (Bottom Pane)
+        # We use a frame to hold the Label and Entry together in the bottom pane
+        input_container = tk_base.Frame(chat_paner, bg=FrameBG)
+        
+        PromptLabel = Label(input_container, text="User Prompt:", style="A12B.TLabel")
+        PromptLabel.pack(side=tk_base.TOP, anchor=tk_base.W, pady=(5, 0))
 
         global PromptBox
-        # We use Entry (which is ttk.Entry in your script) and apply our custom style
-        PromptBox = Entry(matrixwindow, style="Prompt.TEntry", width=45)
-        PromptBox.grid(row=23, column=0, columnspan=4, sticky=W, padx=5, pady=5)
+        # Using Style "Prompt.TEntry" defined above
+        PromptBox = Entry(input_container, style="Prompt.TEntry")
+        PromptBox.pack(side=tk_base.TOP, fill=tk_base.X, pady=(0, 10))
         
-        # Bind the 'Enter' key to the handler function
+        # Add frame to paned window
+        chat_paner.add(input_container, minsize=80)
+
+        # 5. CONFIGURE TAGS
+        ChatHistory.tag_configure("user_tag", foreground="#0078d4", font=("Arial", 10, "bold"))
+        ChatHistory.tag_configure("ai_tag", foreground="#2b88d8", font=("Arial", 10, "bold"))
+        ChatHistory.tag_configure("text_tag", foreground="black", font=("Arial", 10))
+        ChatHistory.tag_configure("status_tag", foreground="gray", font=("Arial", 10, "italic"))
+
+        # 6. BINDINGS & FOCUS
         PromptBox.bind("<Return>", handle_user_prompt)
-
-        global AIResponseBox
-        AIResponseBox = scrolledtext.ScrolledText(matrixwindow, wrap=WORD, width=45, height=6, font="Arial 10", state=DISABLED)
-        AIResponseBox.grid(row=24, column=0, columnspan=4, sticky=W, padx=5, pady=(0, 5))
-    # end of prompt box
-
+        PromptBox.focus_set()
 
 
         ############################## 
@@ -7745,25 +7793,43 @@ def onResSchClick(event):
     ser.write(SendByt)
 #
     
-# create a chatbox for AI prompting
 def handle_user_prompt(event):
-    global PromptBox, AIResponseBox, GeminiModel
-    user_input = PromptBox.get()
+    global PromptBox, ChatHistory, GeminiModel
+    user_input = PromptBox.get().strip()
+    
     if not user_input:
         return
+
+    # 1. Clear input immediately
     PromptBox.delete(0, END)
-    AIResponseBox.config(state=NORMAL)
-    AIResponseBox.delete(1.0, END)
-    AIResponseBox.insert(END, "Thinking...")
-    AIResponseBox.config(state=DISABLED)
-    AIResponseBox.update()
+
+    # 2. Enable box for appending
+    ChatHistory.config(state=NORMAL)
+    
+    # 3. Add User Prompt with Tag
+    ChatHistory.insert(END, "\nYou: ", "user_tag")
+    ChatHistory.insert(END, f"{user_input}\n", "text_tag")
+    
+    # 4. "Thinking" Indicator
+    ChatHistory.insert(END, "AI: Thinking...\n", "status_tag")
+    ChatHistory.see(END)
+    ChatHistory.update()
+
+    # 5. Get Gemini Response
     try:
         response = GeminiModel.generate_content(user_input)
         reply = response.text
     except Exception as e:
         reply = f"Error: {str(e)}"
-    AIResponseBox.config(state=NORMAL)
-    AIResponseBox.delete(1.0, END)
-    AIResponseBox.insert(END, reply)
-    AIResponseBox.config(state=DISABLED) 
-    PromptBox.delete(0, END)
+
+    # 6. Replace "Thinking..." with the actual response
+    ChatHistory.delete("end-2l", "end-1c") 
+    ChatHistory.insert(END, "AI: ", "ai_tag")
+    ChatHistory.insert(END, f"{reply}\n", "text_tag")
+
+    # 7. Finalize view
+    ChatHistory.see(END)
+    ChatHistory.config(state=DISABLED)
+    
+    # ENSURE CURSOR STAYS IN BOX
+    PromptBox.focus_set()
