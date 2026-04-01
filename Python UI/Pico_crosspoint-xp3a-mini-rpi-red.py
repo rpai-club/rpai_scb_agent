@@ -17,6 +17,17 @@ except:
 #
 from tkinter import scrolledtext
 #
+try:
+    import google.generativeai as genai
+    from dotenv import load_dotenv
+    import os
+    load_dotenv()
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    genai.configure(api_key=GEMINI_API_KEY)
+    GeminiModel = genai.GenerativeModel("gemini-3.1-flash-lite-preview")
+except:
+    showwarning("WARNING","google-generativeai or python-dotenv not installed? Run: pip install google-generativeai python-dotenv")
+#
 # adjust for your specific hardware by changing these values in the alice.init file
 ADC_Cal = 3.25
 VOpenCircuit = 2.4
@@ -1644,7 +1655,8 @@ def MakeBreadboardScreen():
     global CompSpinBoxList_RC, CompSpinBoxList_TL, CompSpinBoxList_BL, CompSpinBoxList_TR, CompSpinBoxList_BR
     global click_loc, breadboard_image, JPcolors, breadboard_canvas
 
-   
+    style = Style() # This accesses the ttk Style object
+    style.configure("Prompt.TEntry", fieldbackground="white", foreground="black")
     
     if BreadboardStatus.get() == 0:
         try:
@@ -1835,50 +1847,72 @@ def MakeBreadboardScreen():
             TestResButton.grid(row=21, column=0, columnspan=2, sticky=W, pady=1)
 
 
-       # --- FULL CHAT UI INTEGRATION ---
-        # 1. Row configuration: Give row 22 (the chat history) all the "weight"
-        # This makes it expand vertically to fill the bottom of the UI.
-        matrixwindow.rowconfigure(22, weight=1)
-        matrixwindow.columnconfigure(0, weight=1)
+    # --- PROMPT BOX ---
+       # --- CLASSIC TK SETUP ---
+        import tkinter as tk_base  # Ensure we have access to classic widgets
 
-        # 2. Chat History Display (Scrollable)
-        global ChatHistory
-        ChatHistory = scrolledtext.ScrolledText(matrixwindow, 
-                                                height=10, 
-                                                state='disabled', 
-                                                wrap='word', 
-                                                bg="white",         # Background color
-                                                foreground="black",  # Main text color (BLACK)
-                                                font=("Arial", 10)
-                                               )
-        ChatHistory.grid(row=22, column=0, columnspan=4, sticky="nsew", padx=5, pady=(10, 0))
-
-        # Create "Bubbles" using Tags (Color coding)
-        ChatHistory.tag_configure("user_tag", foreground="#0078d4", font=("Arial", 10, "bold"))
-        ChatHistory.tag_configure("ai_tag", foreground="#2b88d8", font=("Arial", 10, "bold"))
-
-        # 3. Label for the Input
-        PromptLabel = Label(matrixwindow, text="User Prompt:", style="A12B.TLabel")
-        PromptLabel.grid(row=23, column=0, columnspan=2, sticky=W, pady=(5, 0))
-
-        # 4. Input Box (PromptBox)
-        # Using Style consistent with previous turns
-       # --- UPDATE STYLE FOR CURSOR ---
+        # 1. CREATE STYLE FOR CURSOR
+        # This fixes the cursor color for the ttk Entry
         style = Style()
         style.configure("Prompt.TEntry", 
                         fieldbackground="white", 
-                        foreground="black",
-                        insertcolor="black",   # THIS MAKES THE CURSOR BLACK
-                        insertwidth=2)        # Makes it slightly thicker/easier to see
-        
-        global PromptBox
-        PromptBox = Entry(matrixwindow, style="Prompt.TEntry")
-        PromptBox.grid(row=24, column=0, columnspan=4, sticky="ew", padx=5, pady=(0, 10))
-        
-        PromptBox.bind("<Return>", handle_user_prompt)
-        # --- END CHAT UI ---
+                        foreground="black", 
+                        insertcolor="black", # <--- FIXES VISIBLE CURSOR
+                        insertwidth=2)
 
+        # 2. CREATE DRAGGABLE PANED WINDOW
+        # This allows you to drag the divider up/down to resize the chat
+        chat_paner = tk_base.PanedWindow(matrixwindow, 
+                                        orient=tk_base.VERTICAL, 
+                                        sashwidth=6, 
+                                        sashrelief=tk_base.RAISED, 
+                                        bg=FrameBG)
+        chat_paner.grid(row=22, column=0, columnspan=4, sticky="nsew", padx=5, pady=10)
         
+        # Give row 22 all the weight so it fills the bottom area
+        matrixwindow.rowconfigure(22, weight=1)
+
+        # 3. CHAT HISTORY (Top Pane)
+        global ChatHistory
+        ChatHistory = scrolledtext.ScrolledText(
+            chat_paner, # Parent is the paner
+            height=10, 
+            state='disabled', 
+            wrap='word', 
+            bg="white", 
+            foreground="black", 
+            insertbackground="black", 
+            font=("Arial", 10)
+        )
+        
+        # Add to paned window
+        chat_paner.add(ChatHistory, minsize=100)
+
+        # 4. PROMPT INPUT AREA (Bottom Pane)
+        # We use a frame to hold the Label and Entry together in the bottom pane
+        input_container = tk_base.Frame(chat_paner, bg=FrameBG)
+        
+        PromptLabel = Label(input_container, text="User Prompt:", style="A12B.TLabel")
+        PromptLabel.pack(side=tk_base.TOP, anchor=tk_base.W, pady=(5, 0))
+
+        global PromptBox
+        # Using Style "Prompt.TEntry" defined above
+        PromptBox = Entry(input_container, style="Prompt.TEntry")
+        PromptBox.pack(side=tk_base.TOP, fill=tk_base.X, pady=(0, 10))
+        
+        # Add frame to paned window
+        chat_paner.add(input_container, minsize=80)
+
+        # 5. CONFIGURE TAGS
+        ChatHistory.tag_configure("user_tag", foreground="#0078d4", font=("Arial", 10, "bold"))
+        ChatHistory.tag_configure("ai_tag", foreground="#2b88d8", font=("Arial", 10, "bold"))
+        ChatHistory.tag_configure("text_tag", foreground="black", font=("Arial", 10))
+        ChatHistory.tag_configure("status_tag", foreground="gray", font=("Arial", 10, "italic"))
+
+        # 6. BINDINGS & FOCUS
+        PromptBox.bind("<Return>", handle_user_prompt)
+        PromptBox.focus_set()
+
 
         ############################## 
         ### MIDDLE SIDE OF SCREEN ####
@@ -7767,25 +7801,43 @@ def handle_user_prompt(event):
     global PromptBox, ChatHistory
     user_input = PromptBox.get().strip()
     
-    if user_input:
-        # Enable editing to add text
-        ChatHistory.configure(state='normal')
-        
-        # Add User message
-        ChatHistory.insert('end', f"\nYou: ", "user_tag")
-        ChatHistory.insert('end', f"{user_input}\n")
-        
-        # Clear input box
-        PromptBox.delete(0, 'end')
-        
-        # ENSURE CURSOR RETURNS TO BOX
-        PromptBox.focus_set() 
-        
-        # Simulation of AI Response (You can hook this up to your logic)
-        ChatHistory.insert('end', f"\nAI: ", "ai_tag")
-        ChatHistory.insert('end', f"I've received your request: '{user_input}'. How can I help further?\n")
-        
-        # Scroll to the bottom and disable editing again
-        ChatHistory.see('end')
-        ChatHistory.configure(state='disabled')
+def handle_user_prompt(event):
+    global PromptBox, ChatHistory, GeminiModel
+    user_input = PromptBox.get().strip()
+    
+    if not user_input:
+        return
 
+    # 1. Clear input immediately
+    PromptBox.delete(0, END)
+
+    # 2. Enable box for appending
+    ChatHistory.config(state=NORMAL)
+    
+    # 3. Add User Prompt with Tag
+    ChatHistory.insert(END, "\nYou: ", "user_tag")
+    ChatHistory.insert(END, f"{user_input}\n", "text_tag")
+    
+    # 4. "Thinking" Indicator
+    ChatHistory.insert(END, "AI: Thinking...\n", "status_tag")
+    ChatHistory.see(END)
+    ChatHistory.update()
+
+    # 5. Get Gemini Response
+    try:
+        response = GeminiModel.generate_content(user_input)
+        reply = response.text
+    except Exception as e:
+        reply = f"Error: {str(e)}"
+
+    # 6. Replace "Thinking..." with the actual response
+    ChatHistory.delete("end-2l", "end-1c") 
+    ChatHistory.insert(END, "AI: ", "ai_tag")
+    ChatHistory.insert(END, f"{reply}\n", "text_tag")
+
+    # 7. Finalize view
+    ChatHistory.see(END)
+    ChatHistory.config(state=DISABLED)
+    
+    # ENSURE CURSOR STAYS IN BOX
+    PromptBox.focus_set()
