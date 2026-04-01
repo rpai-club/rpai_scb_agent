@@ -1961,6 +1961,9 @@ def MakeBreadboardScreen():
             J_Connections_Labels.append(J_connections)
 
         ##############################
+
+        # Add this at the end of the function to set focus on startup
+        PromptBox.focus_set()
 #
 def BBCAresize(event):
     global breadboard_canvas, BBwidth, BBheight, CANVASwidthBB, CANVASheightBB
@@ -7792,6 +7795,11 @@ def onResSchClick(event):
     SendByt = SendStr.encode('utf-8')
     ser.write(SendByt)
 #
+
+# create an AI prompt box
+def handle_user_prompt(event):
+    global PromptBox, ChatHistory
+    user_input = PromptBox.get().strip()
     
 def handle_user_prompt(event):
     global PromptBox, ChatHistory, GeminiModel
